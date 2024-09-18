@@ -1,3 +1,6 @@
+// 落下スピード
+const DROP_SPEED = 300;
+
 // 1ブロックの大きさ
 const BLOCK_SIZE = 30;
 
@@ -160,6 +163,44 @@ const canMove = (moveX, moveY) => {
   return true;
 };
 
+// const createRightRotateTet = () => {
+//   //回転後の新しいテトリミノ用配列
+//   let newTet = [];
+//   for (let y = 0; y < TET_SIZE; y++) {
+//     newTet[y] = [];
+//     for (let x = 0; x < TET_SIZE; x++) {
+//       newTet[y][x] = tetroMino[TET_SIZE - 1 - x][y];
+//     }
+//   }
+//   return newTet;
+// };
+
+// 右回転
+const createRightRotateTet = () => {
+  //回転後の新しいテトリミノ用配列
+  let newTet = [];
+  for (let y = 0; y < TET_SIZE; y++) {
+    newTet[y] = [];
+    for (let x = 0; x < TET_SIZE; x++) {
+      newTet[y][x] = tetroMino[TET_SIZE - 1 - x][y];
+    }
+  }
+  return newTet;
+};
+
+// 左回転
+const createLeftRotateTet = () => {
+  //回転後の新しいテトリミノ用配列
+  let newTet = [];
+  for (let y = 0; y < TET_SIZE; y++) {
+    newTet[y] = [];
+    for (let x = 0; x < TET_SIZE; x++) {
+      newTet[y][x] = tetroMino[x][TET_SIZE - 1 - y];
+    }
+  }
+  return newTet;
+};
+
 // document.onkeydown = (e) => {
 //   switch (e.code) {
 //     case 'ArrowLeft':
@@ -192,6 +233,41 @@ document.onkeydown = (e) => {
     case 'ArrowDown':
       if (canMove(0, 1)) tetroMinoDistanceY++;
       break;
+    case 'KeyR':
+      let newRTet = createRightRotateTet();
+      if (canMove(0, 0, newRTet)) {
+        tetroMino = newRTet;
+      }
+      break;
+    case 'KeyL':
+      let newLTet = createLeftRotateTet();
+      if (canMove(0, 0, newLTet)) {
+        tetroMino = newLTet;
+      }
+      break;
+  }
+  drawPlayScreen();
+};
+
+const fixTet = () => {
+  for (let y = 0; y < TET_SIZE; y++) {
+    for (let x = 0; x < TET_SIZE; x++) {
+      if (tetroMino[y][x]) {
+        SCREEN[tetroMinoDistanceY + y][tetroMinoDistanceX + x] = 1;
+      }
+    }
+  }
+};
+
+// 落下処理
+const dropTet = () => {
+  if (canMove(0, 1)) {
+    tetroMinoDistanceY++;
+  } else {
+    fixTet();
+    tetroTypesIndex = Math.floor(Math.random() * 7);
+    tetroMino = TETRO_TYPES[tetroTypesIndex];
+    createTetPosition();
   }
   drawPlayScreen();
 };
@@ -212,5 +288,8 @@ const init = () => {
 
   // テスト用
   SCREEN[4][6] = 1;
+
+  // 落下処理実行
+  setInterval(dropTet, DROP_SPEED);
   drawPlayScreen();
 };
